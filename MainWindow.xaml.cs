@@ -1,29 +1,19 @@
 ﻿// This code is public domain
-#define USE_ANGLE
+#define ANGLE_ES3
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Forms;
 using System.Windows.Forms.Integration;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-
 using OpenTK;
 using OpenTK.Graphics;
 
-#if USE_ANGLE
-using OpenTK.Graphics.ES20;
+#if ANGLE_ES3
+using ClearBufferMask = OpenTK.Graphics.ES30.ClearBufferMask;
+using GL = OpenTK.Graphics.ES30.GL;
 #else
-using OpenTK.Graphics.OpenGL;
+using ClearBufferMask = OpenTK.Graphics.ES20.ClearBufferMask;
+using GL = OpenTK.Graphics.ES20.GL;
 #endif
 
 namespace WPF.Angle
@@ -42,15 +32,17 @@ namespace WPF.Angle
 
         private void WindowsFormsHost_Initialized(object sender, EventArgs e)
         {
-            var flags = GraphicsContextFlags.Default;
-#if USE_ANGLE
-            flags = GraphicsContextFlags.Embedded;
+            var flags = GraphicsContextFlags.Angle;
+            int major = 2;
+#if ANGLE_ES3
+            major = 3;
 #endif
-            glControl = new GLControl(new GraphicsMode(32, 24), 2, 0, flags);
+            glControl = new GLControl(new GraphicsMode(32, 24), major, 0, flags);
             glControl.MakeCurrent();
             glControl.Paint += GLControl_Paint;
             glControl.Dock = DockStyle.Fill;
             (sender as WindowsFormsHost).Child = glControl;
+
         }
 
         private void GLControl_Paint(object sender, PaintEventArgs e)
